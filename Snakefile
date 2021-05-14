@@ -2,6 +2,8 @@
 import numpy as np
 import pandas as pd
 from snakemake.utils import validate, min_version
+import glob
+
 ##### set minimum snakemake version #####
 #min_version("5.1.2")
 
@@ -14,10 +16,9 @@ from snakemake.utils import validate, min_version
 # - seg.npy array files with segmentations
 # - CSV files with intensity features within each bounded region
 
-#def get_frame_files(frameFile, parameter):
-#    cvec = pd.read_csv(frameFile)
-#    return(list(cvec[parameter]))
-
+# get images in the storage system
+imageList = glob.glob(config["image_storage"]+'*_dapi.TIF')
+imageNames = ["_".join(sub.split('/')[-1].split('_')[:-1]) for sub in jpgFilenamesList]
 
 ##### load configuration files #####
 configfile:"config.yaml"  # <--- Make sure this is correct.
@@ -25,12 +26,10 @@ configfile:"config.yaml"  # <--- Make sure this is correct.
 ##### target rules #####
 rule all:
     input:
-        expand([config["image_storage"]+"{sample}_dapi.TIF",
-                config["image_storage"]+"{sample}_dapi_seg.npy",
+        expand([config["image_storage"]+"{sample}_dapi_seg.npy",
                 config["image_storage"]+"{sample}_Voro_seg.npy",
                 config["image_storage"]+"{sample}_{channel}_meaurements.csv"],
-                sample=['plate1_scan2_fov10','plate1_scan4_fov40'], channel=['gfp']
-                )
+                sample=imageNames, channel=config["channelsOfIntestest"])
 
 ##### load rules #####
 

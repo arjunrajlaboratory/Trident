@@ -1,12 +1,18 @@
 # config.yaml
 
+# directory where images are stored.
 image_storage: 'images/'
 
+# list channels in your images
+channelsOfIntestest: ['gfp']
+
+# cellpose parameters
 segment:
   flowThreshold: 0.6
   cellProbabilityThreshold: -3.5
   nuclearDiameter: 18.0
   GPU: False
 
+# this will dictate how much of your mask is driven by voronoi or disk
 cast:
   VoronoiArea: 1600
