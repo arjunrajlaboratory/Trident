@@ -10,11 +10,12 @@ rule segment:
   params:
     flowThreshold=config['segment']['flowThreshold'],
     cellProbabilityThreshold=config['segment']['cellProbabilityThreshold'],
-    nucDiam=config['segment']['nuclearDiameter']
+    nucDiam=config['segment']['nuclearDiameter'],
+    gpu=config['segment']['GPU']
   run:
 #    outpath = str(wildcards.path) + '/'
-    model = models.Cellpose(gpu=False, model_type='nuclei')
+    model = models.Cellpose(gpu=params.gpu, model_type='nuclei')
     img = io.imread(input.nuclear)
     masks, flows, styles, diams = model.eval(img, diameter=params.nucDiam, cellprob_threshold=params.cellProbabilityThreshold, flow_threshold=params.flowThreshold, channels=[0,0])
-    io.masks_flows_to_seg(img, masks, flows, diams,input.nuclear)
-    io.save_to_png(img, masks, flows, input.nuclear)
+    cellpose.io.masks_flows_to_seg(img, masks, flows, diams,input.nuclear)
+    cellpose.io.save_to_png(img, masks, flows, input.nuclear)

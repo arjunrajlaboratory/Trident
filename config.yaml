@@ -6,3 +6,7 @@ segment:
   flowThreshold: 0.6
   cellProbabilityThreshold: -3.5
   nuclearDiameter: 18.0
+  GPU: False
+
+cast:
+  VoronoiArea: 1600

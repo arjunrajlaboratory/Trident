@@ -10,7 +10,7 @@ rule cast:
     VoroTIF='{path}/{sample}_Voro_final.tif',
     VoroTrans='{path}/{sample}_Clps2Voro.csv'
   params:
-    MaxVoroArea = 1600
+    MaxVoroArea = config['cast']['VoronoiArea']
   run:
     getVoronoiStyle(seg_file=input.mask,max_voro_area=params.MaxVoroArea,
                     voro_imfile=output.VoroImage,voro_imfile_2=output.VoroTIF,
