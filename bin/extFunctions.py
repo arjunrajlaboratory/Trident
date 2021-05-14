@@ -1,33 +1,42 @@
-def getIntProps(HCR_mask_file, channel, channelImageArray, dilation=1, bkgrdValue=0):
-    temp = np.asarray(np.load(HCR_mask_file,allow_pickle=True))#.item()
-    masks = temp.T #segmentation.clear_border(temp)#['masks'])
-    masks = morphology.dilation(masks,morphology.square(dilation))
-    props = measure.regionprops_table(masks, intensity_image=channelImageArray, properties=('label','centroid',
-                                                                                            'filled_area',
-                                                     'min_intensity',
-                                                     'mean_intensity',
-                                                     'max_intensity'))
+### testing image registration functions
+import numpy as np
+from urllib.parse import urlparse
+from cellpose import utils, io,models
+import matplotlib
+import matplotlib.pyplot as plt
+import time, os, sys
+import pandas as pd
+import glob
+### Part 1 : Image Registration
+from skimage import img_as_uint,io,registration,transform,filters,restoration,util,feature,morphology,exposure,measure,segmentation
+from sklearn.cluster import KMeans
+from scipy import ndimage as ndi
+from skimage.util import montage
+from skimage.transform import warp_polar, rotate, rescale
+from scipy.spatial import Voronoi
+from skimage.feature import peak_local_max
+
+from sklearn.cluster import KMeans
+
+matplotlib.use('agg')
+
+def measureIntProps(maskMtx,channel,channelImage):
+    listprops = ('label','centroid','filled_area','min_intensity','mean_intensity','max_intensity')
+    props = measure.regionprops_table(maskMtx, intensity_image=channelImage, properties=listprops)
     props = pd.DataFrame(props)
-    if(dilation>1):
-        props = props.drop(['centroid-0', 'centroid-1'], axis=1)
-    props['sum_intensity'] =  props['filled_area'] * props['mean_intensity']
-    props = props.add_suffix('_'+str(dilation))
+    props['sum_intensity'] =  np.round(props['filled_area'] * props['mean_intensity'])
+    props['mean_intensity'] = np.round(props['mean_intensity'])
     props = props.add_prefix(channel+'_')
-    props[channel+'_background'] = bkgrdValue
-    props = props.rename(columns={channel+"_label_"+str(dilation): "label",
-                                  channel+"_centroid-0_"+str(dilation): "centroid-0",
-                                  channel+"_centroid-1_"+str(dilation): "centroid-1",
-                                 })
+    props = props.rename(columns={channel+"_label": "label",
+                                  channel+"_centroid-0": "centroid-0",
+                                  channel+"_centroid-1": "centroid-1"})
     return(props)
 
-
 def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfile,voro_transfile):
-    hcr_file = '/'.join(seg_file.split('/')[:-1])+'/HCRsub_A594.tif'
-    im = io.imread(hcr_file)
-    im = np.zeros_like(np.array(im))
-
     temp = np.asarray(np.load(seg_file,allow_pickle=True)).item()
     masks = temp['masks']
+
+    im = np.zeros_like(np.array(masks))
 
     fro = pd.DataFrame(measure.regionprops_table(masks, properties=['label','centroid']))
 
@@ -103,8 +112,8 @@ def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfil
         newVorMask[newVorMask == bigMasks[bMI]] = 0
         newVorMask[tmp_join] = bigMasks[bMI]
 
-    np.save(voro_outfile, newVorMask, allow_pickle=True, fix_imports=True)
-    io.imsave(voro_imfile_2, segmentation.find_boundaries(newVorMask))
+    np.save(voro_outfile, newVorMask.T, allow_pickle=True, fix_imports=True)
+    io.imsave(voro_imfile_2, segmentation.find_boundaries(newVorMask).T)
 
     oldAssign = pd.DataFrame(measure.regionprops_table(masks, properties=['label','centroid']))
     newAssign = pd.DataFrame(measure.regionprops_table(newVorMask, properties=['label','centroid']))
@@ -120,31 +129,3 @@ def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfil
     Clps2Voro = Clps2Voro.rename(columns={0: "voro_label", 1: "clps_label"})
     Clps2Voro = Clps2Voro.reset_index(drop=True)
     Clps2Voro.to_csv(voro_transfile)
-
-
-def assembleFinalState(HCR_mask_file, HCR_image_file, HCR_coords_file, Voro_mask_file,Voro_image_file,Voro_image_file_final, Voro_Transfer_file,channelList, final_timepoint,dilations=[1],MaxVoroArea = 1600):
-
-    result_subimages = list(map(lambda x : getSubImage(HCR_image_file, hcr_coords_file=HCR_coords_file, channel=x), channelList))
-    result_bkgrd = list(map(getBackgroundValue, result_subimages))
-
-    fullExpChannelFrame = pd.DataFrame()
-
-    getVoronoiStyle(seg_file=HCR_mask_file,max_voro_area=MaxVoroArea,
-                    voro_imfile=Voro_image_file,voro_imfile_2 =Voro_image_file_final,
-                    voro_outfile=Voro_mask_file,voro_transfile=Voro_Transfer_file)
-
-    for chan in range(len(channelList)):
-        for dil in dilations:
-            if (len(fullExpChannelFrame)==0):
-                fullExpChannelFrame = getIntProps(HCR_mask_file = Voro_mask_file,
-                                                  channel = channelList[chan],
-                                                  channelImageArray = result_subimages[chan],
-                                                  dilation=dil, bkgrdValue=result_bkgrd[chan])
-            else:
-                tmp_fullExpChannelFrame = getIntProps(HCR_mask_file = Voro_mask_file,
-                                                  channel = channelList[chan],
-                                                  channelImageArray = result_subimages[chan],
-                                                  dilation=dil, bkgrdValue=result_bkgrd[chan])
-                fullExpChannelFrame = pd.merge(fullExpChannelFrame,tmp_fullExpChannelFrame)
-    fullExpChannelFrame['Voro_ID_'+str(final_timepoint)] = str(final_timepoint)+'_'+fullExpChannelFrame['label'].astype(str)
-    return(fullExpChannelFrame)
