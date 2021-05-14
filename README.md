@@ -1,4 +1,4 @@
-# IntensityMeasurement
+# Trident
 
 This pipeline is built with Snakemake.
 
