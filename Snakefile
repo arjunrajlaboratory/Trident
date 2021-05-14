@@ -14,20 +14,21 @@ from snakemake.utils import validate, min_version
 # - seg.npy array files with segmentations
 # - CSV files with intensity features within each bounded region
 
-def get_frame_files(frameFile, parameter):
-    cvec = pd.read_csv(frameFile)
-    return(list(cvec[parameter]))
+#def get_frame_files(frameFile, parameter):
+#    cvec = pd.read_csv(frameFile)
+#    return(list(cvec[parameter]))
 
 
 ##### load configuration files #####
 configfile:"config.yaml"  # <--- Make sure this is correct.
-#validate(config, schema="schemas/config.schema.yaml")
-well = 'FT_403_D2_1_w1_XY'
+
 ##### target rules #####
 rule all:
     input:
-        expand(["results/{sample}/correction/{sample}_Brightfield_corr.tif",
-                sample=[well + str(sub).zfill(3) for sub in np.array([i for i in range(90,121)])])
+        expand([config["image_storage"]+"{sample}_dapi.TIF",
+                config["image_storage"]+"{sample}_dapi_seg.npy"],
+                sample=['plate1_scan2_fov10','plate1_scan4_fov40']
+                )
 #,27,28,29,30,31,32,42,43,45,53,56,63,64
 #sample=['FT_220_D2_2_wB3_XY09','FT_220_D2_2_wC3_XY23','FT_220_D2_2_wC3_XY30','FT_220_D2_2_wC3_XY38','FT_220_D2_2_wC3_XY49','FT_220_D2_2_wC3_XY53'])
 
@@ -35,10 +36,5 @@ rule all:
 
 ##### load rules #####
 
-include: "rules/TL_correct.smk"
-include: "rules/TL_segment.smk"
-include: "rules/TL_connect.smk"
-include: "rules/TL_extract.smk"
-include: "rules/HCR_subImage.smk"
-include: "rules/HCR_connect.smk"
-include: "rules/HCR_extract.smk"
+include: "rules/segment.smk"
+#include: "rules/extract.smk"

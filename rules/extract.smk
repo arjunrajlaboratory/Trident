@@ -32,11 +32,6 @@ rule HCR_extract:
                                 final_timepoint=params.timepoint,
                                 dilations=params.dilationList,
                                 MaxVoroArea=params.MaxVoroArea)
-    print(input.connectionPath, input.finalConnect, params.timepoint,wildcards.sample)
-    connex = getAllConnections(pathToConnects=input.connectionPath+'/', #'results/'++'/connect/'+wildcards.sample+'/',
-                                finalConnection=input.finalConnect,
-                                final_timepoint=params.timepoint,
-                                sampleName=wildcards.sample)
 
     intDF.to_csv(output.HCRmeasures)
     connex.to_csv(output.allConnect)

@@ -1,0 +1,8 @@
+# config.yaml
+
+image_storage: 'images/'
+
+segment:
+  flowThreshold: 0.6
+  cellProbabilityThreshold: -3.5
+  nuclearDiameter: 18.0
