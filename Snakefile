@@ -16,12 +16,12 @@ import glob
 # - seg.npy array files with segmentations
 # - CSV files with intensity features within each bounded region
 
-# get images in the storage system
-imageList = glob.glob(config["image_storage"]+'*_dapi.TIF')
-imageNames = ["_".join(sub.split('/')[-1].split('_')[:-1]) for sub in jpgFilenamesList]
-
 ##### load configuration files #####
 configfile:"config.yaml"  # <--- Make sure this is correct.
+
+# get images in the storage system
+imageList = glob.glob(config["image_storage"]+'*_dapi.TIF')
+imageNames = ["_".join(sub.split('/')[-1].split('_')[:-1]) for sub in imageList]
 
 ##### target rules #####
 rule all:

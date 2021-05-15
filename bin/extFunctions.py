@@ -79,7 +79,7 @@ def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfil
     voro = (im2[:,:,0])
     voro = voro[1:-1, 1:-1]
     voro = np.pad(voro, pad_width=1, mode='constant')
-
+    print('hey')
     distance = ndi.distance_transform_edt(voro)
     coords = peak_local_max(distance, footprint=np.ones((1, 1)), labels=voro)
     mask = np.zeros(distance.shape, dtype=bool)
@@ -88,16 +88,16 @@ def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfil
     labels = segmentation.watershed(-distance, markers, mask=voro)
     labels = morphology.remove_small_objects(labels, min_size=40, connectivity=1, in_place=False)
     labels = morphology.dilation(labels, morphology.square(3))
-
+    print('hey2')
     segmasks = masks
     segmasks = morphology.dilation(segmasks,morphology.square(3))
 
     sizeOfSegs = pd.DataFrame(measure.regionprops_table(labels, properties=['label','area']))
     bigMasks = np.array(sizeOfSegs[sizeOfSegs['area']>=max_voro_area]['label'])
-
+    print('hey3')
     newVorMask = np.copy(labels)[::-1,:]
     for bMI in range(len(bigMasks)):
-
+        print("progress:"+str(bMI)+'/'+str(len(bigMasks)))
         chckMtx = (labels == bigMasks[bMI])[::-1,:]
 
         for i in range(len(points_mask)):
