@@ -4,10 +4,10 @@ from skimage import io
 
 rule extract:
   input:
-    mask='{path}/{sample}_WS_seg.npy',
-    chImage='{path}/{sample}_{channel}.TIF'
+    mask='{path}/{well}/{well}_WS_seg.npy',
+    chImage='{path}/{well}/{channel}001.tif'
   output:
-    measures='{path}/{sample}_{channel}_meaurements.csv'
+    measures='{path}/{well}/{well}_{channel}_meaurements.csv'
   run:
     mask = np.array(np.load(input.mask,allow_pickle=True))
     ch = str(wildcards.channel)

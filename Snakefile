@@ -20,16 +20,18 @@ import glob
 configfile:"config.yaml"  # <--- Make sure this is correct.
 
 # get images in the storage system
-imageList = glob.glob(config["image_storage"]+'*_dapi.TIF')
-imageNames = ["_".join(sub.split('/')[-1].split('_')[:-1]) for sub in imageList]
+#imageList = glob.glob(config["image_storage"]+'*_dapi.TIF')
+#imageNames = ["_".join(sub.split('/')[-1].split('_')[:-1]) for sub in imageList]
+
+wellList = [x[0].split('/')[-1] for x in os.walk(config["image_storage"])][1:]
 
 ##### target rules #####
 rule all:
     input:
-        expand([config["image_storage"]+"{sample}_dapi_seg.npy",
-                config["image_storage"]+"{sample}_WS_seg.npy",
-                config["image_storage"]+"{sample}_{channel}_meaurements.csv"],
-                sample=imageNames, channel=config["channelsOfIntestest"])
+        expand([config["image_storage"]+"{well}/dapi001_seg.npy",
+                config["image_storage"]+"{well}/{well}_WS_seg.npy",
+                config["image_storage"]+"{well}/{well}_{channel}_meaurements.csv"],
+                well=wellList, channel=config["channelsOfIntestest"])
 
 ##### load rules #####
 

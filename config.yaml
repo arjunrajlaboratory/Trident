@@ -1,7 +1,7 @@
 # config.yaml
 
 # directory where images are stored.
-image_storage: 'images/'
+image_storage: 'newimage/'
 
 # list channels in your images
 channelsOfIntestest: ['gfp']
