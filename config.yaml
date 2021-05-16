@@ -1,7 +1,7 @@
 # config.yaml
 
 # directory where images are stored.
-image_storage: 'images_2/'
+image_storage: 'images/'
 
 # list channels in your images
 channelsOfIntestest: ['gfp']
@@ -15,4 +15,4 @@ segment:
 
 # this will dictate how much of your mask is driven by voronoi or disk
 cast:
-  VoronoiArea: 1600
+  dilation: 9

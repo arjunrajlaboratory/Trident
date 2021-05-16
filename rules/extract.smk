@@ -1,10 +1,10 @@
-from bin.extFunctions import *
+from bin.extFunctionsWS import *
 import pandas as pd
 from skimage import io
 
 rule extract:
   input:
-    mask='{path}/{sample}_Voro_seg.npy',
+    mask='{path}/{sample}_WS_seg.npy',
     chImage='{path}/{sample}_{channel}.TIF'
   output:
     measures='{path}/{sample}_{channel}_meaurements.csv'

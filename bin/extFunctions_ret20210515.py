@@ -32,6 +32,12 @@ def measureIntProps(maskMtx,channel,channelImage):
                                   channel+"_centroid-1": "centroid-1"})
     return(props)
 
+def getOverlap(index, dilation=9):
+    joint = segmentation.join_segmentations(morphology.dilation((segmasks==fro['label'][index]).astype(int),morphology.disk(dilation)),
+                                          (tVorMask==fro['VorLabel'][index]).astype(int))
+    final = (joint==np.max(joint))*fro.loc[index,'label']
+    return(final)
+
 def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfile,voro_transfile):
     temp = np.asarray(np.load(seg_file,allow_pickle=True)).item()
     masks = temp['masks']
@@ -93,9 +99,23 @@ def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfil
     sizeOfSegs = pd.DataFrame(measure.regionprops_table(labels, properties=['label','area']))
     bigMasks = np.array(sizeOfSegs[sizeOfSegs['area']>=max_voro_area]['label'])
     newVorMask = np.copy(labels)[::-1,:]
+    for bMI in range(len(bigMasks)):
+        print("progress:"+str(bMI)+'/'+str(len(bigMasks)))
+        chckMtx = (labels == bigMasks[bMI])[::-1,:]
 
-    red =[getOverlap(row, segmasks=segmasks,fro=fro, dilation=11) for row in range(fro.shape[0])]
-    newVorMask = np.sum(red)
+        for i in range(len(points_mask)):
+            confirm = points_mask[i]
+            print(points_mask[i])
+            print("---")
+
+        tmp_cellpose_mask = (morphology.dilation((segmasks == int(fro[(fro['centroid-0']==confirm[0])&(fro['centroid-1']==confirm[1])]['label'])).T,morphology.disk(11))).astype(int)
+        tmp_voronoi_mask = 2*chckMtx.astype(int)
+        tmp_join = segmentation.join_segmentations(tmp_cellpose_mask,tmp_voronoi_mask)
+        tmp_join = (tmp_join == np.max(tmp_join))
+
+        newVorMask[newVorMask == bigMasks[bMI]] = 0
+        newVorMask[tmp_join] = bigMasks[bMI]
+
     np.save(voro_outfile, newVorMask.T, allow_pickle=True, fix_imports=True)
     io.imsave(voro_imfile_2, segmentation.find_boundaries(newVorMask).T)
 
@@ -113,9 +133,3 @@ def getVoronoiStyle(seg_file,max_voro_area,voro_imfile,voro_imfile_2,voro_outfil
     Clps2Voro = Clps2Voro.rename(columns={0: "voro_label", 1: "clps_label"})
     Clps2Voro = Clps2Voro.reset_index(drop=True)
     Clps2Voro.to_csv(voro_transfile)
-
-def getOverlap(index, segmasks,fro, dilation=9):
-    joint = segmentation.join_segmentations(morphology.dilation((segmasks==fro['label'][index]).astype(int),morphology.disk(dilation)),
-                                          (tVorMask==fro['VorLabel'][index]).astype(int))
-    final = (joint==np.max(joint))*fro.loc[index,'label']
-    return(final)

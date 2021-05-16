@@ -27,12 +27,12 @@ imageNames = ["_".join(sub.split('/')[-1].split('_')[:-1]) for sub in imageList]
 rule all:
     input:
         expand([config["image_storage"]+"{sample}_dapi_seg.npy",
-                config["image_storage"]+"{sample}_Voro_seg.npy",
+                config["image_storage"]+"{sample}_WS_seg.npy",
                 config["image_storage"]+"{sample}_{channel}_meaurements.csv"],
                 sample=imageNames, channel=config["channelsOfIntestest"])
 
 ##### load rules #####
 
 include: "rules/segment.smk"
-include: "rules/cast.smk"
+include: "rules/cast_watershed.smk"
 include: "rules/extract.smk"
