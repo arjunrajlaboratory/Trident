@@ -38,7 +38,7 @@ def getnewMask(seg_file,dilation,WS_outfile,WS_transfile,WS_maskImage):
 
 
     masks = temp['masks']>0
-    masks=morphology.dilation(masks,morphology.disk(21))
+    masks=morphology.dilation(masks,morphology.disk(dilation))
 
     secmask = np.zeros(masks.shape, dtype=bool)
     secmask[tuple(pointList.T)] = True
