@@ -30,7 +30,7 @@ rule all:
     input:
         expand([config["image_storage"]+"{well}/dapi001_seg.npy",
                 config["image_storage"]+"{well}/{well}_WS_seg.npy",
-                config["image_storage"]+"{well}/{well}_{channel}_meaurements.csv"],
+                config["image_storage"]+"{well}/{well}_{channel}_measurements.csv"],
                 well=wellList, channel=config["channelsOfIntestest"])
 
 ##### load rules #####

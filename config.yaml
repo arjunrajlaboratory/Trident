@@ -1,16 +1,16 @@
 # config.yaml
 
 # directory where images are stored.
-image_storage: 'newimage/'
+image_storage: '/Users/pburnham/Desktop/data_0520/'
 
 # list channels in your images
-channelsOfIntestest: ['gfp']
+channelsOfIntestest: ['yfp','cy5']
 
 # cellpose parameters
 segment:
   flowThreshold: 0.6
   cellProbabilityThreshold: -3.5
-  nuclearDiameter: 18.0
+  nuclearDiameter: 0.0
   GPU: False
 
 # this will dictate how much of your mask is driven by voronoi or disk
