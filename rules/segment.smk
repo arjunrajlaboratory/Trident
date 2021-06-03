@@ -4,9 +4,9 @@ from cellpose import utils,models,io
 
 rule segment:
   input:
-    nuclear='{path}/{well}/dapi001.tif'
+    nuclear='{path}/{sample}_'+config["segChannel"]+'.tif'
   output:
-    array='{path}/{well}/dapi001_seg.npy'
+    array='{path}/{sample}_'+config["segChannel"]+'_seg.npy'
   params:
     flowThreshold=config['segment']['flowThreshold'],
     cellProbabilityThreshold=config['segment']['cellProbabilityThreshold'],

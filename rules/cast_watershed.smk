@@ -3,11 +3,11 @@ import pandas as pd
 
 rule cast:
   input:
-    mask='{path}/{well}/dapi001_seg.npy',
+    mask='{path}/{sample}_'+config["segChannel"]+'_seg.npy'
   output:
-    WSMask='{path}/{well}/{well}_WS_seg.npy',
-    WStransfer='{path}/{well}/{well}_WSlabels.csv',
-    WSimage='{path}/{well}/{well}_WSbounds.tif'
+    WSMask='{path}/{sample}_WS_seg.npy',
+    WStransfer='{path}/{sample}_WSlabels.csv',
+    WSimage='{path}/{sample}_WSbounds.tif'
   params:
     dilation = config['cast']['dilation']
   run:
