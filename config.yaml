@@ -1,10 +1,10 @@
 # config.yaml
 
 # directory where images are stored.
-image_storage: '/Users/pburnham/Desktop/data_0520/'
-
+image_storage: '/Users/pburnham/Downloads/HCR_testing/'
+segChannel: '1DAPI'
 # list channels in your images
-channelsOfIntestest: ['yfp','cy5']
+channelsOfIntestest: ['1CY5','1CY3','1YFP','2CY5','2CY3','2YFP']
 
 # cellpose parameters
 segment:
