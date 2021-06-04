@@ -13,9 +13,12 @@ from scipy import ndimage as ndi
 
 matplotlib.use('agg')
 
+def quantiles(regionmask, intensity):
+    return np.percentile(intensity[regionmask], q=(10, 25, 50, 75, 90))
+
 def measureIntProps(maskMtx,channel,channelImage):
     listprops = ('label','centroid','filled_area','min_intensity','mean_intensity','max_intensity')
-    props = measure.regionprops_table(maskMtx, intensity_image=channelImage, properties=listprops)
+    props = measure.regionprops_table(maskMtx, intensity_image=channelImage, properties=listprops,extra_properties = (quantiles,))
     props = pd.DataFrame(props)
     props['sum_intensity'] =  np.round(props['filled_area'] * props['mean_intensity'])
     props['mean_intensity'] = np.round(props['mean_intensity'])
